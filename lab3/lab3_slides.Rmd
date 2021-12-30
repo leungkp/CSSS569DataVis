@@ -1,0 +1,954 @@
+---
+title: "CSSS 569 Visualizing Data and Models"
+subtitle: "Lab 3: Intro to `ggplot2`"
+author: "Kai Ping (Brian) Leung"
+institute: "Department of Political Science, UW"
+date: \today
+output:
+  beamer_presentation:
+    incremental: yes
+link-citations: yes
+linkcolor: blue
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+source("http://staff.washington.edu/kpleung/vis/theme/theme_cavis.R")
+```
+
+## Introduction
+- Let's start with some examples
+
+## Introduction
+```{r, echo=FALSE}
+knitr::include_graphics("plot/iverPlot.pdf")
+```
+
+## Introduction
+```{r, echo=FALSE}
+knitr::include_graphics("plot/presVoteEV.pdf")
+```
+
+## Introduction
+```{r, echo=FALSE}
+knitr::include_graphics("plot/ropeladder2.pdf")
+```
+
+## Grammar of graphics 
+- A statistical graphic is a **`mapping`** of **`data`** variables to **`aes`**thetic attributes of **`geom`**etric objects. (Wilkinson 2005)
+
+## Grammar of graphics in `ggplot2`
+- *What* data do you want to visualize?
+  - **`ggplot(data = ...)`**
+
+- *How* are variables mapped to specific aesthetic attributes?
+  - **`aes(... = ...)`**
+    - positions (`x`, `y`), `shape`, `colour`, `size`, `fill`, `alpha`, `linetype`, `label`...
+    - If the value of an attribute do not vary w.r.t. some variable, don't wrap it within `aes(...)`
+
+- *Which* geometric shapes do you use to represent the data?
+  - **`geom_{}`**:
+    - `geom_point`, `geom_line`, `geom_ribbon`, `geom_polygon`, `geom_label`...
+
+## `ggplot2`: A layered grammar
+- `ggplot2`: A *layered* grammer of graphics (Wickham 2009)
+  - Build a graphic from multiple layers; each consists of some geometric objects or transformation 
+  - Use `+` to stack up layers
+- Within each `geom_{}` layer, two things are *inherited* from previous layers
+  - Data: inherited from the master data
+  - Aesthetics: inherited (`inherit.aes = TRUE`) from the master aesthetics
+  - They are convenient but create unintended consequences
+     - We'll revisit them very soon and learn how to overwrite them
+  
+## Tidy data
+>- `ggplot2` works well only with tidy data
+>      - *Tidy data*:
+>         - Each **variable** must have its own **column**
+>         - Each **observation** must have its own **row**
+>         - Each value must have its own cell
+    
+>- Example: `iverRevised.csv` for Homework1
+
+\scriptsize
+```{r, echo = FALSE, message=F, warning = F}
+iver <- read_csv("data/iverRevised.csv")
+head(iver)
+```
+
+## Building a plot from scratch
+```{r, echo=FALSE}
+knitr::include_graphics("plot/iverPlot.pdf")
+```
+
+## Building a plot from scratch
+\scriptsize
+```{r, warning = F, message = F}
+# Load packages
+library(tidyverse)
+library(RColorBrewer)
+library(ggrepel)
+#install.packages("MASS")
+
+# Load data
+iver <- read_csv("data/iverRevised.csv")
+
+# Shorten the variable names
+iver <- iver %>%
+  rename(povRed = povertyReduction,
+         effPar = effectiveParties,
+         parSys = partySystem)
+```
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+```{r, eval=F}
+ggplot(
+  data = iver, 
+  mapping = aes(y = povRed, 
+                x = effPar)
+  )
+```
+::::
+:::: column
+```{r, echo=F}
+ggplot(
+  data = iver, 
+  mapping = aes(y = povRed, 
+                x = effPar)
+  )
+```
+::::
+:::
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+`data =...` and `mapping =...` can be omitted for simplicity
+```{r, eval=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar)
+  )
+```
+::::
+:::: column
+```{r, echo=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar)
+  )
+```
+::::
+:::
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+No data will be drawn until you supply `geom_{}`
+```{r, eval=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar)
+  ) +
+  geom_point()
+```
+::::
+:::: column
+```{r, echo=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar)
+  ) +
+  geom_point(size = 4)
+```
+::::
+:::
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+Map variable `partySystem` to aesthetics 
+```{r, eval=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point()
+```
+::::
+:::: column
+```{r, echo=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point(size = 4)
+```
+::::
+:::
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+Why does it produce multiples smooth curves?
+```{r, eval=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point() +
+  geom_smooth(method = MASS::rlm)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point(size = 4)+
+  geom_smooth(method = MASS::rlm)
+```
+::::
+:::
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+There is a hidden `inherit.aes = TRUE` default argument in every `geom_{}`
+```{r, eval=F}
+ggplot(
+    iver, 
+    aes(y = povRed, x = effPar,
+        colour = parSys, 
+        shape = parSys)
+  ) +
+  geom_point(  
+    inherit.aes = TRUE,
+    aes(y = povRed, x = effPar,
+        colour = parSys, 
+        shape = parSys)
+ ) +
+  geom_smooth(    
+    inherit.aes = TRUE,
+    aes(y = povRed, x = effPar,
+        colour = parSys, 
+        shape = parSys),
+    method = MASS::rlm
+  )
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, 
+      x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point(size = 4)+
+  geom_smooth(method = MASS::rlm)
+```
+::::
+:::
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+One solution: localize different aesthetic settings to specific layers
+```{r, eval=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar)
+  ) +
+  geom_point(
+    aes(colour = parSys, 
+        shape = parSys),
+    size = 4
+  )+
+  geom_smooth(method = MASS::rlm)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar)
+  ) +
+  geom_point(
+    aes(colour = parSys, 
+        shape = parSys),
+    size = 4
+  )+
+  geom_smooth(method = MASS::rlm)
+```
+::::
+:::
+
+## Building a plot from scratch
+::: columns
+:::: column
+\scriptsize
+Another solution: override the grouping with `aes(group = 1)`
+```{r, eval=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point()+
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm
+  )
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point(size = 4)+
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm
+  )
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+How to override the default colors? Let's learn how to get nice colors first
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point(size = 4)+
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm
+  )
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Get nice colors with `RColorBrewer` package; see \href{https://rdrr.io/cran/RColorBrewer/man/ColorBrewer.html}{here for palettes}
+```{r, eval=T, message=F, warning =F}
+library(RColorBrewer)
+colors <- brewer.pal(n = 3, "Set1")
+red <- colors[1]
+blue <- colors[2]
+green <- colors[3]
+
+print(c(red, blue, green))
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point(size = 4)+
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm
+  )
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+You can `scale` every aesthetic (i.e. overwrite the default) you mapped
+```{r, eval = F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point()+
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm
+  ) +
+  scale_color_manual(
+    values = c(
+      "Majoritarian" = blue,
+      "Proportional" = green,
+      "Unanimity" = red
+    )
+  )
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_point(size = 4)+
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm
+  ) +
+  scale_color_manual(
+    values = c(
+      "Majoritarian" = blue,
+      "Proportional" = green,
+      "Unanimity" = red
+    )
+  )
+```
+::::
+:::
+  
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Two tweaks: 
+(1) plot `geom_smooth` first, then `geom_point` (why?); 
+(2) adjust the color and size of `geom_smooth` (no need in `aes`; why?)
+```{r, eval = F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm,
+    color = "black",
+    size = 0.5
+  ) +
+  geom_point()+
+  scale_color_manual(
+    values = c(
+      "Majoritarian" = blue,
+      "Proportional" = green,
+      "Unanimity" = red
+    )
+  )
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+ggplot(
+  iver, 
+  aes(y = povRed, x = effPar,
+      colour = parSys, 
+      shape = parSys)
+  ) +
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm,
+    color = "black",
+    size = 0.5
+  ) +
+  geom_point(size = 4)+
+  scale_color_manual(
+    values = c(
+      "Majoritarian" = blue,
+      "Proportional" = green,
+      "Unanimity" = red
+    )
+  )
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Let's first save what we have so far
+```{r, eval = F}
+p <- ggplot(
+    iver, 
+    aes(y = povRed, x = effPar,
+        colour = parSys, 
+        shape = parSys)
+  ) +
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm,
+    color = "black",
+    size = 0.5
+  ) +
+  geom_point()+
+  scale_color_manual(
+    values = c(
+      "Majoritarian" = blue,
+      "Proportional" = green,
+      "Unanimity" = red
+    )
+  )
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- ggplot(
+    iver, 
+    aes(y = povRed, x = effPar,
+        colour = parSys, 
+        shape = parSys)
+  ) +
+  geom_smooth(
+    aes(group = 1), 
+    method = MASS::rlm,
+    color = "black",
+    size = 0.5
+  ) +
+  geom_point(size = 4)+
+  scale_color_manual(
+    values = c(
+      "Majoritarian" = blue,
+      "Proportional" = green,
+      "Unanimity" = red
+    )
+  )
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Similarly, you can scale `shape`; see \href{http://sape.inf.usi.ch/quick-reference/ggplot2/shape}{here for all shapes}.
+```{r, eval = F}
+p <- p +
+  scale_shape_manual(
+    values = c(
+      "Majoritarian" = 17, 
+      "Proportional" = 15, 
+      "Unanimity" = 16
+    )
+  ) 
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p +
+  scale_shape_manual(
+    values = c(
+      "Majoritarian" = 17, 
+      "Proportional" = 15, 
+      "Unanimity" = 16
+    )
+  ) 
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Similarly, you can scale `y` and `x` (they are also inside `aes`!)
+```{r, eval = F}
+p <- p +
+  scale_x_continuous(
+    trans = "log", 
+    breaks = 2:7
+  )
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p +
+  scale_x_continuous(
+    trans = "log", 
+    breaks = 2:7
+  )
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+But `limits` of `y` must be large enough to incorporate the confidence regions produced by `geom_smooth`
+```{r, eval = F}
+p <- p +
+  scale_y_continuous(
+    breaks = seq(0, 80, 20), 
+    limits = c(0, 100)
+  )
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p +
+  scale_y_continuous(
+    breaks = seq(0, 80, 20), 
+    limits = c(0, 100)
+  )
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Remove unhelpful elements (e.g. grey background, gridlines etc.) using `theme`
+```{r, eval = F}
+p <- p +
+  theme(
+    panel.background = 
+      element_rect(fill = NA),
+    axis.ticks.x = 
+      element_blank(),
+    axis.ticks.y = 
+      element_blank(),
+  )
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p +
+  theme(
+    panel.background = 
+      element_rect(fill = NA),
+    axis.ticks.x = 
+      element_blank(),
+    axis.ticks.y = 
+      element_blank(),
+  )
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+How do we embed the legend within the plot and remove unhelpful elements?
+```{r, eval = F}
+p <- p +
+  theme(
+    legend.position = 
+      c(0.15, 0.8),
+    legend.title = 
+      element_blank(),
+    legend.background = 
+      element_blank(),
+    legend.key = 
+      element_rect(fill = NA, 
+                   color = NA)
+  )
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p +
+  theme(
+    legend.position = 
+      c(0.15, 0.89),
+    legend.title = 
+      element_blank(),
+    legend.background = 
+      element_blank(),
+    legend.key = 
+      element_rect(fill = NA, 
+                   color = NA)
+  )
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+With a much cleaner graph, we can augment the graph with more information: `label`
+```{r, eval = F}
+library(ggrepel)
+
+p +
+  geom_text_repel(
+    aes(label = country)
+  )
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p +
+  ggrepel::geom_text_repel(
+    aes(label = country)
+  )
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Something is wrong with the legend once we have too many mappings:
+```{r, eval = F}
+p <- p +
+  geom_text_repel(
+    aes(label = country),
+    show.legend = FALSE
+  )
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p +
+  ggrepel::geom_text_repel(
+    aes(label = country),
+    show.legend = FALSE
+  )
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+With a much cleaner graph, we can augment the graph with more information: `geom_rug`
+```{r, eval = F}
+p <- p + 
+  geom_rug(color = "black")
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p + 
+  geom_rug(color = "black")
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+::: columns
+:::: column
+\scriptsize
+Final tweaks: `x-axis title`, `y-axis title`, `coordinate limits`
+```{r, eval = F}
+p <- p + 
+  labs(
+    x = "Effective number of parties",
+    y = "% lifted from poverty by taxes & transfers"
+    #title = ...
+  ) +
+  coord_cartesian(ylim = c(0, 80))
+
+print(p)
+```
+::::
+:::: column
+```{r, echo=F, message=F, warning=F}
+p <- p + 
+  labs(
+    x = "Effective number of parties",
+    y = "% lifted from poverty by taxes & transfers"
+    #title = ...
+  ) +
+  coord_cartesian(ylim = c(0, 80))
+
+print(p)
+```
+::::
+:::
+
+## Building a plot from scratch: 
+Full code to reproduce the graph:
+\scriptsize
+```{r, eval = F}
+ggplot(iver, aes(y = povRed, x = effPar, color = parSys, shape = parSys)) +
+  geom_smooth(aes(group = 1), colour = "black", size = 0.25,
+              method = MASS::rlm, method.args = list(method = "MM")) +
+  geom_point(size = 2) +
+  geom_text_repel(aes(label = country), show.legend = FALSE) +
+  geom_rug(color = "black", size = 0.25) +
+  scale_shape_manual(values = c(17, 15, 16)) +
+  scale_color_manual(values = c(blue, green, red)) +
+  scale_x_continuous(trans = "log", breaks = 2:7) +
+  scale_y_continuous(breaks = seq(0, 80, 20), limits = c(0, 100)) +
+  theme(panel.background = element_rect(fill = NA),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = c(0.15, 0.89),
+        legend.title = element_blank(),
+        legend.background = element_blank(),
+        legend.key = element_rect(fill = NA, color = NA)) +
+  coord_cartesian(ylim = c(0, 80)) +
+  labs(x = "Effective number of parties", 
+       y = "% lifted from poverty by taxes & transfers")
+```
+
+## Building a plot from scratch: 
+How to save a graph into PDF?
+\scriptsize
+```{r, eval = F}
+width <- 8
+ggsave("iverPlot.pdf", width = width, height = width/1.618, units = "in")
+```
+
+## Customized theme  
+- You won't be alone in thinking that it's quite tedious...
+  - Beginner-friendly defaults come at a cost of painstakingly overwritting them
+- Chris and I wrote a `ggplot2 theme` that implements visual principles taught in lectures and his graphic style 
+  - `theme_cavis.R` can be found \href{http://staff.washington.edu/kpleung/vis/theme/theme_cavis.R}{here}
+  - which contains three theme objects: `theme_cavis`, `theme_cavis_hgrid`, `theme_cavis_vgrid`
+
+## Customized theme  
+>- To use it, simply:
+
+\scriptsize
+```{r, eval = F}
+# Source the R script
+source("http://staff.washington.edu/kpleung/vis/theme/theme_cavis.R")
+
+# Or 
+source("your_local_directory/theme_cavis.R")
+
+# Then add it to your ggplot object as usual
+some_ggplot_object + 
+  theme_cavis 
+```
+
+## Quick showcase
+::: columns
+:::: column
+\scriptsize
+```{r}
+ggplot(
+  iver, 
+  aes(x = effPar, y = povRed, 
+      color = parSys)
+  ) +
+  geom_point(size = 5)
+```
+::::
+:::: column
+\scriptsize
+```{r}
+ggplot(
+  iver, 
+  aes(x = effPar, y = povRed, 
+      color = parSys)
+  ) +
+  geom_point(size = 5) +
+  theme_cavis_hgrid
+```
+::::
+:::
+
+## Small multiples: `facet_grid` (or `facet_wrap`)
+\scriptsize
+```{r}
+ggplot(iver, aes(y = povRed, x = effPar)) +
+  geom_smooth(method = MASS::rlm, colour = "black", size = 0.25) +
+  geom_point(size = 1.5) +
+  geom_text_repel(aes(label = country), size = 2.5) +
+  scale_x_continuous(trans = "log", breaks = 2:7) +
+  facet_grid(~ parSys) + # Use (scale = "free_x") with caution
+  theme_cavis_hgrid 
+```
+
+## Exercise
+Reproduce the following graph with all techniques we've learnt:
+```{r, echo = FALSE}
+knitr::include_graphics("plot/presVoteEV.pdf")
+```
+
+## Exercise
+
+>- Model results `presVoteEV.csv` can be found on the course website
+>     - Background: 1992 US presidential election: {Clinton, Perot, Bush}
+>     - Model: multinomial logistic regression 
+>     - Variables in the model output:
+
+\scriptsize
+
+   Columns      Explaination 
+  ------------ ----------------------------------------------------------------------
+   vote92       Respondents' choices of candidate: {Clinton, Perot, Bush} 
+   nonwhite     Nonwhite respondents: {0, 1} 
+   rlibcon      Ideological self-placement {1 (very liberal): 7 (very conservative)} 
+   pe           Point estimate of voting for a particular candidate 
+   lower        Lower bound (95% CIs) of the point estimate 
+   upper        Upper bound (95% CIs) of the point estimate 
+   ------------ ----------------------------------------------------------------------

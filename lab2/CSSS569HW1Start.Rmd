@@ -1,0 +1,56 @@
+---
+title: "Homework 1"
+author: "Your Name"
+date: "January 21, 2021"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+YourWD <- getwd()
+
+```
+
+
+
+##  Problem 1
+### a. 
+```{r, echo = F, out.width='85%', fig.align='center'}
+knitr::include_graphics(paste0(YourWD, "/terry-schiavo-misleading-graph.jpg"))
+```
+
+
+Explain...............
+
+Source: Statistics How To "\href{https://www.statisticshowto.com/misleading-graphs/}{Misleading Graphs: Real Life Examples}" 
+
+### b.
+Critique, critique, critique, critique  
+
+### c.
+```{r, echo = F, out.width='100%', fig.align='center'}
+knitr::include_graphics(paste0(YourWD, "/handwriting.jpg"))
+```
+
+Propose, propose, propose, propose, propose
+
+
+##  Problem 2
+```{r, echo =T, warning=F, message=F}
+
+df <- read.csv("https://faculty.washington.edu/cadolph/vis/iverRevised.csv")
+
+
+df %>% 
+  ggplot(aes(x=povertyReduction , y=effectiveParties))+
+  geom_point()
+
+```
+
+
+
+

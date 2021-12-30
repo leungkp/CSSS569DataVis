@@ -1,0 +1,171 @@
+---
+title: "map_tutorial"
+author: "Kai Ping (Brian) Leung"
+date: "2/16/2020"
+output:
+  beamer_presentation:
+    incremental: yes
+link-citations: yes
+linkcolor: blue
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Let's teach tmap
+1. [`tmap` vignette](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html)
+
+2. [Basic Mapping: R Notes](https://spatialanalysis.github.io/lab_tutorials/4_R_Mapping.html)
+
+3. [Geocomputation with R: Ch. 8:: Making maps with R](https://bookdown.org/robinlovelace/geocompr/adv-map.html)
+
+4. [Creating beautiful demographic maps in R with the tidycensus and tmap packages](http://zevross.com/blog/2018/10/02/creating-beautiful-demographic-maps-in-r-with-the-tidycensus-and-tmap-packages/)
+
+
+# Packages
+```{r}
+# install.packages(c("cowplot", "googleway", "ggplot2", "ggrepel", "ggspatial", "libwgeom", "sf", "rnaturalearth", "rnaturalearthdata"))
+# install.packages("tmap", "sf")
+
+library(ggplot2)
+library(sf)
+library(tmap)
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+----------------- ---------------------- -------------------------
+                      ggplot2               tmap
+----------------- ---------------------- -------------------------
+Data              `ggplot(...) +`         `tm_shape(...) +`
+
+Layers            `geom_...(...) +`       `tm_...(...) +`
+
+Small Multiples   `facet_grid(...)`       `tm_facets(...)`
+
+Layout            `theme(...)`            `tm_layout(...)`
+----------------- ---------------------- --------------------------
+
+# World example
+
+```{r}
+data(World, metro)
+
+metro <- metro %>%
+  mutate(growth = (pop2020 - pop2010) / pop2010 * 100)
+
+world_map <- 
+  tm_shape(World) +
+  tm_polygons("income_grp", palette = "-Blues",
+              title = "Income class",
+              border.col = "white", 
+              border.alpha = 0.5) + 
+  tm_text(text = "iso_a3", size = "AREA", col = "grey25") +
+  tm_shape(metro) +
+  tm_bubbles(size = "pop2020", col = "growth",
+             breaks = c(-Inf, 0, 10, 20, 30, Inf),
+             palette = "-RdYlGn", midpoint = NA,
+             alpha = 0.9,
+             border.col = "white",
+             border.lwd = 0.1,
+             title.size = "Metro population (2020)",
+             title.col = "Population growth (%)") +
+  tm_layout(frame = FALSE)
+
+tmap_save(world_map, filename = "worldMap.pdf")
+```
+
+# Objectives
+1. tm_shape + tm_borders + tm_fill
+2. palette control
+3. cut-point control
+4. view mode
+5. facetting
+6. saving map
+
+# Basic
+```{r}
+nyc.bound <- st_read("lab7/nyc/nyc.shp")
+
+# Basics
+tm_shape(nyc.bound) + # initial command
+  tm_polygons(col = "rent2008") +
+  tm_layout(frame = FALSE)
+
+# Paletes
+tm_shape(nyc.bound) +
+  tm_polygons(col = "rent2008", palette = "RdYlBu") + # Support RColorBrewer
+  tm_layout(frame = FALSE)
+
+# Legend Control
+rentNYC <- 
+  tm_shape(nyc.bound) +
+  tm_polygons(col = "rent2008", palette = "BrBG",
+              title = "Rent in 2008") +
+  tm_layout(main.title = "Rent in 2008 New York City",
+            main.title.position = "center",
+            frame = FALSE)
+
+# tmap_save(rentNYC, "rentNYC.pdf")
+
+# tmap_arrange
+rentNYC <- 
+  tm_shape(nyc.bound) +
+  tm_polygons(col = "rent2008", palette = "BrBG",
+              border.col = "white", border.alpha = 0.5,
+              title = "Rent in 2008") +
+  tm_layout(legend.text.size = 0.5,
+            legend.width = 0.7,
+            frame = FALSE)
+
+hisNYC <- 
+  tm_shape(nyc.bound) +
+  tm_polygons(col = "forhis08", 
+              border.col = "white", border.alpha = 0.5,
+              title = "Hispanic population in 2008 (%)") +
+  tm_layout(legend.text.size = 0.5,
+            legend.width = 0.7,
+            frame = FALSE)
+
+pubastNYC <- 
+ tm_shape(nyc.bound) +
+  tm_polygons(col = "pubast00", palette = "Blues",
+              border.col = "white", border.alpha = 0.5,
+              title = "% of households receiving \npublic assistance in 2000") +
+  tm_layout(legend.text.size = 0.5,
+            legend.width = 0.7,
+            frame = FALSE)
+
+threeMaps <- tmap_arrange(rentNYC, hisNYC, pubastNYC, nrow = 1)
+tmap_save(threeMaps, "threeMaps.pdf", width = 10, height = 4)
+
+# Interactive map
+tmap_mode("view")
+
+tm_shape(nyc.bound) +
+  tm_polygons(col = "rent2008", palette = "BrBG",
+              title = "Rent in 2008",
+              alpha = 0.7) +
+  tm_basemap(server = "OpenStreetMap", alpha = 0.5)
+  
+# Switch back to plot mode
+tmap_mode("plot")
+
+# Facets
+nyc.bound$cut.forhis <- cut(nyc.bound$forhis08, breaks = 3)
+nyc.bound$cut.forhis
+
+facetNYC <- 
+tm_shape(nyc.bound) +
+  tm_polygons(col = "rent2008", palette = "BrBG",
+              title = "Rent in 2008") +
+  tm_facets(by = "cut.forhis",
+            nrow = 1,
+            free.coords = FALSE,
+            drop.units = FALSE)
+
+tmap_save(facetNYC, "facetNYC.pdf")
+```

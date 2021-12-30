@@ -1,0 +1,121 @@
+---
+title: "CSSS 569 Visualizing Data and Models"
+subtitle: "Lab 2: Intro to \\LaTeX{} with \\texttt{Overleaf}"
+author: "Kenya Amano"
+institute: "Department of Political Science, UW"
+date: January 15, 2021
+output: 
+  beamer_presentation:
+link-citations: yes
+linkcolor: blue
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Agenda
+1. Logistics
+
+2. `R Markdown` and HW1
+
+3. \LaTeX{} and `Overleaf`
+
+# Homework Submission
+**Use Canvas** not email.
+
+
+# `RMarkdown` and HW1
+- Problem 1: Attach file (PDF/picture) and make comments with 2-5 paragraphs
+
+- Problem 2: Read data and display the plot
+  - *Do not spend more than two hours* 
+
+
+# Intro to \TeX{} and \LaTeX{}
+- \TeX{} is a *typesetting engine*^[\scriptsize Modern extensions of the \TeX{} engines include pdfTeX, XeTeX, LuaTeX, etc.] designed by Donald Knuth, a computer scientist and mathematician at Stanford
+  - For typesetting scientific text and mathematical formulas
+
+# Intro to \TeX{} and \LaTeX{}
+- \LaTeX{} is a *document preparation system, or a macro package*, built on top of the \TeX{} engine, with features:
+  - Typesetting journal articles, technical reports, books, and slides
+  - Control over large documents containing sectioning, cross-references, tables and figures
+  - Typesetting of complex mathematical formulas
+  - Advanced typesetting of mathematics with AMS-LaTeX
+  - Automatic generation of bibliographies and indexes
+  - Multi-lingual typesetting
+  - See more \href{https://www.latex-project.org}{here}
+
+# Intro to \TeX{} and \LaTeX{}
+- Popular *implementations, or distributions*, of \TeX{}/\LaTeX{}
+  - MacTeX for Mac OS: <http://www.tug.org/mactex/>
+  - MiKTeX for Windows: <https://miktex.org>
+
+# Intro to \TeX{} and \LaTeX{}
+- \LaTeX{} vs. other word processors (e.g. Microsoft Word)
+  - Microsoft Word/Power Point
+    - WYSIWYG: What You See Is What You Get
+    - You interact with a user interface to control the document layout while typing text 
+    - What is displayed on the screen resembles what will be printed 
+  - \LaTeX{}
+    - You provide "\LaTeX{} commands" to specify the layout, structure, and details of the document:
+    - `\command[optional parameter]{parameter}`
+    - And *typeset* the document using the \TeX{} engine and compile the output
+    
+# Intro to \TeX{} and \LaTeX{}
+- The input for \LaTeX{} is a plain text file (.tex)
+  - You need a text editor!
+- Numerous popular text editors
+  - Specific: Texmaker, TeXShop, TeXstudio, TeXworks...
+  - Generic: Emacs (Aquamacs), Vim, Sublime, Atom...
+
+
+# Intro to \LaTeX{} with `Overleaf`
+- All the above sound pretty complicated...
+- `Overleaf`: <https://www.overleaf.com/>
+  - An online \LaTeX{} editor
+    - Integrated PDF preview pane
+    - Quality of life features: auto-complete commands, auto-close brackets, keyboard shortcuts, etc.
+    - Numerous templates: journal articles, books, CVs, slides, posters, etc.
+    - Easy collaboration (But not free) 
+    - Integrated with `Zotero` and `Mendeley` for bibliography management
+    - Integrated with `Git` for version control
+    
+# Intro to \LaTeX{} with `Overleaf`
+- Before we dive in, useful resources
+  - \href{https://tobi.oetiker.ch/lshort/lshort.pdf}{The Not So Short Introduction to \LaTeXe{} (Oetiker et al., 2018)}
+    - Learn \LaTeX{} in 139 pages / minutes
+  - \href{https://www.overleaf.com/learn/}{`Overleaf` documentation}
+    - Contains intro to basic \LaTeX{}, `Overleaf`, and many practical guides
+  - \href{https://tex.stackexchange.com}{\TeX{} at StackExchange}
+  -  General: \href{https://en.wikibooks.org/wiki/LaTeX/Mathematics}{Mathematics} and \href{https://en.wikibooks.org/wiki/LaTeX/Tables}{Tables} and \href{https://sites.google.com/site/kochiuyu/Tikz}{TikZ}
+  -  Beamer Theme: \href{https://hartwork.org/beamer-theme-matrix/}{here}
+  -  Bibliography: \href{http://merkel.texture.rocks/Latex/natbib.php}{natbib}, \href{https://www.doi2bib.org/}{doi2bib}, \href{https://text2bib.economics.utoronto.ca/}{text2bib}
+  - Other: \href{https://gking.harvard.edu/pages/student-materials}{here}
+
+  
+# Intro to \LaTeX{} with `Overleaf`
+- Some useful templates:
+  - Thesis: \href{https://www.overleaf.com/latex/templates/phd-thesis-and-dissertation-latex-templates-for-harvard-princeton-and-new-york-university-nyu/wkzvtymyxqvv}{here}
+  - Working paper: \href{https://www.overleaf.com/read/qgpdhyztkpgt
+}{My sample}, and \href{https://www.overleaf.com/project/5e42e4a9ae15f200014a4919}{Chris's sample}
+  - Academic journal: \href{https://www.overleaf.com/latex/templates/american-political-science-review-apsr-submission-template/fxffppspqczt}{here}
+  - Presentation slides (Beamer): \href{https://www.overleaf.com/latex/templates/metropolis-beamer-theme/qzyvdhrntfmr}{here} and 
+  \href{https://www.overleaf.com/latex/templates/presentation-template/ycwnkvzxyzwv}{here} 
+  - Poster: \href{https://www.overleaf.com/latex/templates/landscape-beamer-poster-template/vjpmsxxdvtqk}{here}
+  - CV: \href{https://ja.overleaf.com/latex/templates/academic-cv-template/xykxmjmkxxjm}{here} and 
+  \href{https://ja.overleaf.com/gallery/tagged/cv}{here}
+  - Graphs, trees, diagrams (TikZ): \href{https://www.overleaf.com/latex/examples/branching-arrows-with-decision-option-in-flowchart/txjdyggmtbjw}{here} and \href{https://www.overleaf.com/latex/examples/tikz-flowchart-of-an-epidemiology-study/hdpqksvwkqdm}{here} 
+
+
+
+
+
+
+
+
+
+
+
